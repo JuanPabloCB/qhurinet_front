@@ -24,7 +24,8 @@ export class MaterialService {
   }
 
   crear(material: Material): Observable<Material> {
-    return this.http.post<Material>(this.apiUrl, material);
+    const { id, ...sinId } = material;
+    return this.http.post<Material>(this.apiUrl, sinId);
   }
 
   actualizar(id: number, material: Material): Observable<string> {
