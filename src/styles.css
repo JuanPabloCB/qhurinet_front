@@ -471,6 +471,11 @@ a {
   color: #637169;
 }
 
+.status-chip.warning {
+  background: var(--warning-50);
+  color: var(--warning);
+}
+
 .status-chip.floating {
   position: absolute;
   top: 12px;

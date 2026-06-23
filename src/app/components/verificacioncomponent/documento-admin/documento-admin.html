@@ -28,7 +28,7 @@
     </div>
   } @else {
     <div class="table-card">
-      <table>
+      <table class="data-table">
         <thead>
           <tr><th>Usuario</th><th>Tipo</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr>
         </thead>
@@ -37,9 +37,21 @@
             <tr>
               <td>{{ documento.usuarioNombre }}</td>
               <td>{{ documento.tipo }}</td>
-              <td><span class="status-chip">{{ documento.estado }}</span></td>
+              <td>
+                <span
+                  class="status-chip"
+                  [class.warning]="estadoClase(documento.estado) === 'warning'"
+                  [class.inactive]="estadoClase(documento.estado) === 'inactive'"
+                >
+                  {{ documento.estado }}
+                </span>
+              </td>
               <td>{{ documento.createdAt | date: 'dd/MM/yyyy' }}</td>
-              <td><button class="btn btn-soft" type="button" (click)="seleccionado = documento">Revisar</button></td>
+              <td>
+                <button class="btn btn-soft" type="button" (click)="abrirRevision(documento)">
+                  {{ puedeRevisar(documento) ? 'Revisar' : 'Ver detalle' }}
+                </button>
+              </td>
             </tr>
           }
         </tbody>
@@ -48,18 +60,22 @@
   }
 
   @if (seleccionado) {
-    <div class="modal-backdrop" (click)="seleccionado = null">
+    <div class="modal-backdrop" (click)="cerrarRevision()">
       <article class="modal-card" (click)="$event.stopPropagation()">
         <h3>Revisar documento</h3>
         <p>{{ seleccionado.usuarioNombre }} · {{ seleccionado.tipo }}</p>
+        @if (esImagen(seleccionado.urlArchivo)) {
+          <img [src]="seleccionado.urlArchivo" alt="Documento enviado" class="preview-image" />
+        }
         <a [href]="seleccionado.urlArchivo" target="_blank" rel="noopener" class="btn btn-soft">Abrir archivo</a>
         <div class="field">
           <label for="motivo">Motivo de rechazo</label>
           <textarea id="motivo" rows="3" [(ngModel)]="motivoRechazo"></textarea>
         </div>
         <div class="form-actions">
-          <button class="btn btn-soft" type="button" [disabled]="procesando" (click)="revisar('aprobado')">Aprobar</button>
-          <button class="btn btn-danger" type="button" [disabled]="procesando" (click)="revisar('rechazado')">Rechazar</button>
+          <button class="btn btn-soft" type="button" [disabled]="procesando || !puedeRevisar(seleccionado)" (click)="revisar('aprobado')">Aprobar</button>
+          <button class="btn btn-danger" type="button" [disabled]="procesando || !puedeRevisar(seleccionado)" (click)="revisar('rechazado')">Rechazar</button>
+          <button class="btn btn-soft" type="button" [disabled]="procesando" (click)="cerrarRevision()">Cerrar</button>
         </div>
       </article>
     </div>

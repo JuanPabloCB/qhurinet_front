@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { switchMap } from 'rxjs';
 import { DocumentoVerificacion } from '../../../models/DocumentoVerificacion';
@@ -14,7 +14,7 @@ import { obtenerMensajeBackend } from '../../../utils/backend-error';
   templateUrl: './documento-verificacion.html',
   styleUrl: './documento-verificacion.css',
 })
-export class DocumentoVerificacionComponent implements OnInit {
+export class DocumentoVerificacionComponent implements OnInit, OnDestroy {
   documentos: DocumentoVerificacion[] = [];
   cargando = true;
   enviando = false;
@@ -39,7 +39,12 @@ export class DocumentoVerificacionComponent implements OnInit {
     this.cargar();
   }
 
+  ngOnDestroy(): void {
+    this.revocarPreview();
+  }
+
   cargar(): void {
+    this.mensajeError = '';
     const idUsuario = this.authService.getCurrentUserId();
 
     if (!idUsuario) {
@@ -65,7 +70,7 @@ export class DocumentoVerificacionComponent implements OnInit {
     const file = input.files?.[0] ?? null;
     this.archivo = null;
     this.archivoError = '';
-    this.previewUrl = '';
+    this.revocarPreview();
 
     if (!file) {
       return;
@@ -88,6 +93,7 @@ export class DocumentoVerificacionComponent implements OnInit {
     this.mensajeExito = '';
 
     if (this.form.invalid || !this.archivo) {
+      this.archivoError = this.archivo ? this.archivoError : 'Selecciona una imagen para continuar.';
       this.mensajeError = 'Adjunta un archivo válido antes de enviar.';
       return;
     }
@@ -121,7 +127,7 @@ export class DocumentoVerificacionComponent implements OnInit {
         next: () => {
           this.enviando = false;
           this.archivo = null;
-          this.previewUrl = '';
+          this.revocarPreview();
           this.mensajeExito = 'Documentación enviada correctamente.';
           this.cargar();
         },
@@ -134,5 +140,34 @@ export class DocumentoVerificacionComponent implements OnInit {
 
   tieneAprobado(): boolean {
     return this.documentos.some((documento) => documento.estado?.toLowerCase() === 'aprobado');
+  }
+
+  tieneRechazado(): boolean {
+    return this.documentos.some((documento) => documento.estado?.toLowerCase() === 'rechazado');
+  }
+
+  estadoClase(estado: string): string {
+    const normalizado = estado?.toLowerCase();
+
+    if (normalizado === 'aprobado') {
+      return 'success';
+    }
+
+    if (normalizado === 'rechazado') {
+      return 'inactive';
+    }
+
+    return 'warning';
+  }
+
+  puedeEnviar(): boolean {
+    return !this.enviando && !this.tieneAprobado();
+  }
+
+  private revocarPreview(): void {
+    if (this.previewUrl) {
+      URL.revokeObjectURL(this.previewUrl);
+      this.previewUrl = '';
+    }
   }
 }

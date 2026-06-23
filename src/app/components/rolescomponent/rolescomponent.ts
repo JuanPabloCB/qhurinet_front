@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Rol } from '../../models/Rol';
 import { Usuario } from '../../models/Usuario';
+import { AuthService } from '../../services/authservice';
 import { RolService } from '../../services/rolservice';
 import { UsuarioService } from '../../services/usuarioservice';
 import { obtenerMensajeBackend } from '../../utils/backend-error';
@@ -22,6 +23,7 @@ export class RolesComponent implements OnInit {
   cambios: Record<number, string> = {};
 
   constructor(
+    private readonly authService: AuthService,
     private readonly rolService: RolService,
     private readonly usuarioService: UsuarioService,
   ) {}
@@ -32,6 +34,7 @@ export class RolesComponent implements OnInit {
 
   cargar(): void {
     this.cargando = true;
+    this.mensajeError = '';
     this.rolService.listar().subscribe({
       next: (roles) => {
         this.roles = roles;
@@ -63,8 +66,16 @@ export class RolesComponent implements OnInit {
 
   cambiarRol(usuario: Usuario): void {
     const nuevoRol = this.cambios[usuario.id];
+    this.mensajeError = '';
+    this.mensajeExito = '';
 
     if (!nuevoRol || nuevoRol === usuario.roles?.[0]) {
+      return;
+    }
+
+    if (!this.puedeModificarUsuario(usuario)) {
+      this.cambios[usuario.id] = usuario.roles?.[0] ?? 'USER';
+      this.mensajeError = 'No puedes cambiar tu propio rol desde esta pantalla.';
       return;
     }
 
@@ -91,5 +102,9 @@ export class RolesComponent implements OnInit {
           this.cambios[usuario.id] = usuario.roles?.[0] ?? 'USER';
         },
       });
+  }
+
+  puedeModificarUsuario(usuario: Usuario): boolean {
+    return usuario.id !== this.authService.getCurrentUserId();
   }
 }

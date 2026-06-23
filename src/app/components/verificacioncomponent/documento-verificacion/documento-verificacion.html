@@ -13,6 +13,11 @@
   @if (mensajeExito) {
     <div class="alert alert-success">{{ mensajeExito }}</div>
   }
+  @if (tieneRechazado() && !tieneAprobado()) {
+    <div class="alert alert-warning">
+      Tu ultima revision fue rechazada. Puedes corregir el documento y enviarlo nuevamente.
+    </div>
+  }
 
   <div class="two-column">
     <section class="panel">
@@ -50,7 +55,7 @@
         <img [src]="previewUrl" alt="Vista previa del documento" class="preview-image" />
       }
 
-      <button type="submit" class="btn btn-primary" [disabled]="enviando || tieneAprobado()">
+      <button type="submit" class="btn btn-primary" [disabled]="!puedeEnviar()">
         {{ enviando ? 'Enviando...' : 'Enviar documentación' }}
       </button>
     </form>
@@ -66,7 +71,13 @@
       <div class="cards-grid">
         @for (documento of documentos; track documento.id) {
           <article class="mini-card">
-            <span class="status-chip">{{ documento.estado }}</span>
+            <span
+              class="status-chip"
+              [class.warning]="estadoClase(documento.estado) === 'warning'"
+              [class.inactive]="estadoClase(documento.estado) === 'inactive'"
+            >
+              {{ documento.estado }}
+            </span>
             <strong>{{ documento.tipo }}</strong>
             <span>{{ documento.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
             @if (documento.motivoRechazo) {

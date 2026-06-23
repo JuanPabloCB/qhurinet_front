@@ -27,7 +27,7 @@
     </section>
 
     <section class="table-card">
-      <table>
+      <table class="data-table">
         <thead>
           <tr><th>Usuario</th><th>Correo</th><th>Rol actual</th><th>Cambiar rol</th></tr>
         </thead>
@@ -38,11 +38,18 @@
               <td>{{ usuario.correo }}</td>
               <td>{{ usuario.roles?.join(', ') }}</td>
               <td>
-                <select [(ngModel)]="cambios[usuario.id]" (change)="cambiarRol(usuario)">
+                <select
+                  [(ngModel)]="cambios[usuario.id]"
+                  [disabled]="!puedeModificarUsuario(usuario)"
+                  (change)="cambiarRol(usuario)"
+                >
                   @for (rol of roles; track rol.id) {
                     <option [value]="rol.nombre">{{ rol.nombre }}</option>
                   }
                 </select>
+                @if (!puedeModificarUsuario(usuario)) {
+                  <small class="muted">Tu usuario</small>
+                }
               </td>
             </tr>
           }

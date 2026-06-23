@@ -29,6 +29,9 @@ export class DocumentoAdminComponent implements OnInit {
 
   cargar(): void {
     this.cargando = true;
+    this.mensajeError = '';
+    this.seleccionado = null;
+    this.motivoRechazo = '';
     const request$ = this.filtroEstado
       ? this.documentoService.listarPorEstado(this.filtroEstado)
       : this.documentoService.listar();
@@ -49,6 +52,9 @@ export class DocumentoAdminComponent implements OnInit {
     if (!this.seleccionado) {
       return;
     }
+
+    this.mensajeError = '';
+    this.mensajeExito = '';
 
     if (estado === 'rechazado' && !this.motivoRechazo.trim()) {
       this.mensajeError = 'Indica el motivo del rechazo.';
@@ -74,5 +80,38 @@ export class DocumentoAdminComponent implements OnInit {
           this.mensajeError = obtenerMensajeBackend(error);
         },
       });
+  }
+
+  abrirRevision(documento: DocumentoVerificacion): void {
+    this.seleccionado = documento;
+    this.motivoRechazo = documento.motivoRechazo ?? '';
+    this.mensajeError = '';
+  }
+
+  cerrarRevision(): void {
+    this.seleccionado = null;
+    this.motivoRechazo = '';
+  }
+
+  puedeRevisar(documento: DocumentoVerificacion): boolean {
+    return documento.estado?.toLowerCase() === 'pendiente';
+  }
+
+  estadoClase(estado: string): string {
+    const normalizado = estado?.toLowerCase();
+
+    if (normalizado === 'aprobado') {
+      return 'success';
+    }
+
+    if (normalizado === 'rechazado') {
+      return 'inactive';
+    }
+
+    return 'warning';
+  }
+
+  esImagen(url: string): boolean {
+    return /\.(jpe?g|png|webp|gif)(\?.*)?$/i.test(url);
   }
 }
