@@ -25,7 +25,13 @@ export class PublicacionList implements OnInit {
   mensajeError = '';
   mensajeExito = '';
   eliminandoId: number | null = null;
+  cancelandoId: number | null = null;
+  todasPublicaciones: PublicacionCard[] = [];
   publicaciones: PublicacionCard[] = [];
+
+  paginaActual = 1;
+  elementosPorPagina = 6;
+  totalPaginas = 1;
 
   constructor(
     private readonly authService: AuthService,
@@ -72,7 +78,7 @@ export class PublicacionList implements OnInit {
                 catchError(() =>
                   of({
                     publicacion,
-                    materiales: [],
+                    materiales: [] as MaterialDetalle[],
                     errorDetalle: 'No se pudieron cargar los materiales.',
                   }),
                 ),
@@ -83,7 +89,8 @@ export class PublicacionList implements OnInit {
       )
       .subscribe({
         next: (publicaciones) => {
-          this.publicaciones = publicaciones;
+          this.todasPublicaciones = publicaciones;
+          this.actualizarPaginacion();
           this.cargando = false;
         },
         error: (error) => {
@@ -95,6 +102,58 @@ export class PublicacionList implements OnInit {
 
   editar(id: number): void {
     void this.router.navigate(['/publicaciones/editar', id]);
+  }
+
+  cancelarRecoleccion(card: PublicacionCard): void {
+    if (this.cancelandoId) {
+      return;
+    }
+
+    if (typeof window !== 'undefined' && !window.confirm('¿Cancelar esta recolección? La publicación quedará inactiva.')) {
+      return;
+    }
+
+    this.cancelandoId = card.publicacion.id;
+    this.mensajeError = '';
+    this.mensajeExito = '';
+
+    const publicacionInactiva = { ...card.publicacion, activo: false };
+
+    this.publicacionService.actualizar(card.publicacion.id, publicacionInactiva).subscribe({
+      next: () => {
+        card.publicacion.activo = false;
+        this.mensajeExito = 'Recolección cancelada. La publicación fue marcada como inactiva.';
+        this.cancelandoId = null;
+      },
+      error: (error) => {
+        this.mensajeError = obtenerMensajeBackend(error);
+        this.cancelandoId = null;
+      },
+    });
+  }
+
+  reactivarPublicacion(card: PublicacionCard): void {
+    if (this.cancelandoId) {
+      return;
+    }
+
+    this.cancelandoId = card.publicacion.id;
+    this.mensajeError = '';
+    this.mensajeExito = '';
+
+    const publicacionActiva = { ...card.publicacion, activo: true };
+
+    this.publicacionService.actualizar(card.publicacion.id, publicacionActiva).subscribe({
+      next: () => {
+        card.publicacion.activo = true;
+        this.mensajeExito = 'Publicación reactivada correctamente.';
+        this.cancelandoId = null;
+      },
+      error: (error) => {
+        this.mensajeError = obtenerMensajeBackend(error);
+        this.cancelandoId = null;
+      },
+    });
   }
 
   eliminar(card: PublicacionCard): void {
@@ -112,9 +171,10 @@ export class PublicacionList implements OnInit {
 
     this.publicacionService.eliminar(card.publicacion.id).subscribe({
       next: () => {
-        this.publicaciones = this.publicaciones.filter(
+        this.todasPublicaciones = this.todasPublicaciones.filter(
           (item) => item.publicacion.id !== card.publicacion.id,
         );
+        this.actualizarPaginacion();
         this.mensajeExito = 'Publicación eliminada correctamente.';
         this.eliminandoId = null;
       },
@@ -123,6 +183,17 @@ export class PublicacionList implements OnInit {
         this.eliminandoId = null;
       },
     });
+  }
+
+  irAPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.actualizarPaginacion();
+    }
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
   }
 
   formatearFecha(fecha: string): string {
@@ -149,5 +220,16 @@ export class PublicacionList implements OnInit {
 
   trackByMaterial(_: number, item: MaterialDetalle): number {
     return item.idMaterial;
+  }
+
+  private actualizarPaginacion(): void {
+    this.totalPaginas = Math.max(1, Math.ceil(this.todasPublicaciones.length / this.elementosPorPagina));
+
+    if (this.paginaActual > this.totalPaginas) {
+      this.paginaActual = this.totalPaginas;
+    }
+
+    const inicio = (this.paginaActual - 1) * this.elementosPorPagina;
+    this.publicaciones = this.todasPublicaciones.slice(inicio, inicio + this.elementosPorPagina);
   }
 }

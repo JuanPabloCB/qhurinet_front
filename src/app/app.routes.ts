@@ -12,6 +12,7 @@ import { PublicacionExplore } from './components/publicacioncomponent/publicacio
 import { PublicacionInsert } from './components/publicacioncomponent/publicacion-insert/publicacion-insert';
 import { PublicacionList } from './components/publicacioncomponent/publicacion-list/publicacion-list';
 import { PublicacionComponent } from './components/publicacioncomponent/publicacioncomponent';
+import { Publicacionmaterialcomponent } from './components/publicacionmaterialcomponent/publicacionmaterialcomponent';
 import { ResumenComponent } from './components/resumencomponent/resumencomponent';
 import { RolesComponent } from './components/rolescomponent/rolescomponent';
 import { TransaccionDineroListComponent } from './components/transacciondinerocomponent/transaccion-dinero-list/transaccion-dinero-list';
@@ -81,6 +82,10 @@ export const routes: Routes = [
       {
         path: 'acceso-denegado',
         component: AccessDeniedComponent,
+      },
+      {
+        path: 'materiales',
+        component: Publicacionmaterialcomponent,
       },
       {
         path: 'publicaciones',

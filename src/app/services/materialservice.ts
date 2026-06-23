@@ -15,17 +15,32 @@ export class MaterialService {
   listar(): Observable<Material[]> {
     return this.http.get<Material[] | null>(this.apiUrl).pipe(
       map((materiales) => materiales ?? []),
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 204) {
-          return of([]);
-        }
-
-        return throwError(() => error);
-      }),
+      catchError((error: HttpErrorResponse) => this.listaVaciaSiNoContent(error)),
     );
   }
 
   buscarPorId(id: number): Observable<Material> {
     return this.http.get<Material>(`${this.apiUrl}/${id}`);
+  }
+
+  listarPorCategoria(categoria: string): Observable<Material[]> {
+    return this.listar().pipe(
+      map((materiales) =>
+        categoria ? materiales.filter((m) => m.categoria.toLowerCase() === categoria.toLowerCase()) : materiales,
+      ),
+    );
+  }
+
+  obtenerCategorias(): Observable<string[]> {
+    return this.listar().pipe(
+      map((materiales) => [...new Set(materiales.map((m) => m.categoria).filter(Boolean))]),
+    );
+  }
+
+  private listaVaciaSiNoContent(error: HttpErrorResponse): Observable<Material[]> {
+    if (error.status === 204) {
+      return of([]);
+    }
+    return throwError(() => error);
   }
 }

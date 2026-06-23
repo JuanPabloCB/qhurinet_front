@@ -1,3 +1,51 @@
 :host {
   display: block;
 }
+
+.detail-sidebar {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.reputation-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+.reputation-score {
+  font-size: 32px;
+  color: var(--green-700);
+}
+
+.reputation-stars {
+  font-size: 18px;
+  color: #d4a017;
+  letter-spacing: 2px;
+}
+
+.material-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.total-puntos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-weight: 750;
+}
+
+.total-puntos strong {
+  color: var(--green-700);
+  font-size: 18px;
+}

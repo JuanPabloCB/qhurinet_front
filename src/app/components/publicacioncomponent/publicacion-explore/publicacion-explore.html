@@ -3,15 +3,24 @@
     <div>
       <span class="section-tag">Puntos de reciclaje</span>
       <h2>Explorar publicaciones activas</h2>
-      <p>Busca por texto, dirección, material o título.</p>
+      <p>Busca por texto, dirección, material o título. Filtra por categoría de material.</p>
     </div>
   </div>
 
-  <form class="search-bar" (ngSubmit)="buscar()">
-    <input type="search" [(ngModel)]="texto" name="texto" placeholder="Buscar publicaciones" />
-    <button class="btn btn-primary" type="submit">Buscar</button>
-    <button class="btn btn-soft" type="button" (click)="texto = ''; cargarActivas()">Limpiar</button>
-  </form>
+  <div class="toolbar-row">
+    <form class="search-bar" (ngSubmit)="buscar()">
+      <input type="search" [(ngModel)]="texto" name="texto" placeholder="Buscar publicaciones..." />
+      <button class="btn btn-primary" type="submit">Buscar</button>
+      <button class="btn btn-soft" type="button" (click)="limpiar()">Limpiar</button>
+    </form>
+
+    <select class="toolbar-select" [(ngModel)]="categoriaSeleccionada" name="categoria" (ngModelChange)="filtrarPorCategoria()">
+      <option value="">Todas las categorías</option>
+      @for (cat of categorias; track cat) {
+        <option [value]="cat">{{ cat }}</option>
+      }
+    </select>
+  </div>
 
   @if (mensajeError) {
     <div class="alert alert-error">{{ mensajeError }}</div>
@@ -22,7 +31,7 @@
   } @else if (publicaciones.length === 0) {
     <div class="empty-state">
       <strong>No se encontraron publicaciones.</strong>
-      <span>Prueba con otro texto o vuelve al listado activo.</span>
+      <span>Prueba con otro texto, otra categoría o vuelve al listado activo.</span>
     </div>
   } @else {
     <div class="publication-grid">
@@ -44,5 +53,17 @@
         </article>
       }
     </div>
+
+    @if (totalPaginas > 1) {
+      <nav class="pagination">
+        <button class="btn btn-soft" [disabled]="paginaActual === 1" (click)="irAPagina(paginaActual - 1)">Anterior</button>
+        @for (pagina of paginas; track pagina) {
+          <button class="btn" [class.btn-primary]="pagina === paginaActual" [class.btn-soft]="pagina !== paginaActual" (click)="irAPagina(pagina)">
+            {{ pagina }}
+          </button>
+        }
+        <button class="btn btn-soft" [disabled]="paginaActual === totalPaginas" (click)="irAPagina(paginaActual + 1)">Siguiente</button>
+      </nav>
+    }
   }
 </section>

@@ -10,9 +10,12 @@
         <h2>{{ detalle.publicacion.titulo }}</h2>
         <p>{{ detalle.publicacion.direccion || 'Dirección no registrada' }}</p>
       </div>
-      @if (puedeEditar()) {
-        <a class="btn btn-primary" [routerLink]="['/publicaciones/editar', detalle.publicacion.id]">Editar</a>
-      }
+      <div class="card-actions">
+        <a class="btn btn-soft" routerLink="/publicaciones/explorar">Volver</a>
+        @if (puedeEditar()) {
+          <a class="btn btn-primary" [routerLink]="['/publicaciones/editar', detalle.publicacion.id]">Editar</a>
+        }
+      </div>
     </div>
 
     <div class="two-column">
@@ -24,27 +27,51 @@
         <dl class="detail-list">
           <div><dt>Propietario</dt><dd>{{ detalle.publicacion.usuarioNombre }}</dd></div>
           <div><dt>Categoría</dt><dd>{{ detalle.publicacion.categoria }}</dd></div>
-          <div><dt>Material</dt><dd>{{ detalle.publicacion.material }}</dd></div>
+          <div><dt>Material principal</dt><dd>{{ detalle.publicacion.material }}</dd></div>
+          <div><dt>Tipo de punto</dt><dd>{{ detalle.publicacion.tipoPunto }}</dd></div>
           <div><dt>Ubicación</dt><dd>{{ detalle.publicacion.latitud }}, {{ detalle.publicacion.longitud }}</dd></div>
-          <div><dt>Fecha visible</dt><dd>{{ detalle.publicacion.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+          <div><dt>Fecha de registro</dt><dd>{{ detalle.publicacion.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
         </dl>
-        <small class="muted">Observaciones, imagen y fecha de disponibilidad no vienen en el DTO de detalle actual.</small>
       </section>
 
-      <section class="panel">
-        <h3>Materiales</h3>
-        @if (detalle.materiales.length === 0) {
-          <p class="muted">Sin materiales asociados.</p>
-        } @else {
-          <div class="chip-row">
-            @for (material of detalle.materiales; track material.idMaterial) {
-              <span class="material-chip">
-                {{ material.nombreMaterial }} · {{ material.cantidad }} {{ material.unidad }} · {{ material.puntosEstimados }} pts
-              </span>
-            }
-          </div>
-        }
-      </section>
+      <div class="detail-sidebar">
+        <section class="panel">
+          <h3>Reputación del punto</h3>
+          @if (detalle.cantidadCalificaciones > 0) {
+            <div class="reputation-display">
+              <strong class="reputation-score">{{ detalle.reputacionPromedio | number: '1.1-1' }}</strong>
+              <span class="reputation-stars">{{ estrellas(detalle.reputacionPromedio) }}</span>
+            </div>
+            <small class="muted">{{ detalle.cantidadCalificaciones }} calificacion{{ detalle.cantidadCalificaciones !== 1 ? 'es' : '' }}</small>
+          } @else {
+            <p class="muted">Sin calificaciones aún.</p>
+          }
+        </section>
+
+        <section class="panel">
+          <h3>Materiales</h3>
+          @if (detalle.materiales.length === 0) {
+            <p class="muted">Sin materiales asociados.</p>
+          } @else {
+            <ul class="clean-list">
+              @for (material of detalle.materiales; track material.idMaterial) {
+                <li>
+                  <strong>{{ material.nombreMaterial }}</strong>
+                  <small class="muted">{{ material.categoriaMaterial }}</small>
+                  <div class="material-stats">
+                    <span>{{ material.cantidad }} {{ material.unidad }}</span>
+                    <span class="material-chip">{{ material.puntosEstimados }} pts</span>
+                  </div>
+                </li>
+              }
+            </ul>
+            <div class="total-puntos">
+              <span>Total estimado</span>
+              <strong>{{ totalPuntos }} puntos</strong>
+            </div>
+          }
+        </section>
+      </div>
     </div>
   }
 </section>

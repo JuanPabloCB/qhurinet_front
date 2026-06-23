@@ -18,7 +18,7 @@
 
   @if (cargando) {
     <p class="loading-text">Cargando publicaciones...</p>
-  } @else if (publicaciones.length === 0 && !mensajeError) {
+  } @else if (todasPublicaciones.length === 0 && !mensajeError) {
     <div class="empty-state">
       <strong>No tienes publicaciones registradas.</strong>
       <span>Publica tu primer material disponible para que aparezca en este listado.</span>
@@ -64,6 +64,26 @@
                 Editar
               </button>
 
+              @if (card.publicacion.activo) {
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  [disabled]="cancelandoId === card.publicacion.id"
+                  (click)="cancelarRecoleccion(card)"
+                >
+                  {{ cancelandoId === card.publicacion.id ? 'Cancelando...' : 'Cancelar recojo' }}
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn-soft"
+                  [disabled]="cancelandoId === card.publicacion.id"
+                  (click)="reactivarPublicacion(card)"
+                >
+                  {{ cancelandoId === card.publicacion.id ? 'Reactivando...' : 'Reactivar' }}
+                </button>
+              }
+
               @if (esAdmin()) {
                 <button
                   type="button"
@@ -73,13 +93,23 @@
                 >
                   {{ eliminandoId === card.publicacion.id ? 'Eliminando...' : 'Eliminar' }}
                 </button>
-              } @else {
-                <button type="button" class="btn btn-disabled" disabled>Solo administrador</button>
               }
             </div>
           </div>
         </article>
       }
     </div>
+
+    @if (totalPaginas > 1) {
+      <nav class="pagination">
+        <button class="btn btn-soft" [disabled]="paginaActual === 1" (click)="irAPagina(paginaActual - 1)">Anterior</button>
+        @for (pagina of paginas; track pagina) {
+          <button class="btn" [class.btn-primary]="pagina === paginaActual" [class.btn-soft]="pagina !== paginaActual" (click)="irAPagina(pagina)">
+            {{ pagina }}
+          </button>
+        }
+        <button class="btn btn-soft" [disabled]="paginaActual === totalPaginas" (click)="irAPagina(paginaActual + 1)">Siguiente</button>
+      </nav>
+    }
   }
 </section>

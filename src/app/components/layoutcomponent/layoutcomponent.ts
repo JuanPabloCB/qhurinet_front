@@ -25,6 +25,7 @@ export class LayoutComponent {
     { label: 'Resumen', path: '/resumen' },
     { label: 'Publicaciones', path: '/publicaciones/lista' },
     { label: 'Explorar puntos', path: '/publicaciones/explorar' },
+    { label: 'Materiales', path: '/materiales' },
     { label: 'Perfil', path: '/perfil' },
     { label: 'Certificados', path: '/certificados' },
     { label: 'Incentivos', path: '/incentivos' },

@@ -41,4 +41,16 @@ export class PublicacionDetail implements OnInit {
     const idUsuario = this.authService.getCurrentUserId();
     return Boolean(this.detalle && (this.authService.isAdmin() || this.detalle.publicacion.idUsuario === idUsuario));
   }
+
+  get totalPuntos(): number {
+    if (!this.detalle) {
+      return 0;
+    }
+    return this.detalle.materiales.reduce((sum, m) => sum + m.puntosEstimados, 0);
+  }
+
+  estrellas(promedio: number): string {
+    const llenas = Math.round(promedio);
+    return '★'.repeat(llenas) + '☆'.repeat(5 - llenas);
+  }
 }
