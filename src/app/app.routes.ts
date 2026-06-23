@@ -4,6 +4,7 @@ import { LoginComponent } from './components/authcomponent/login/login';
 import { RegisterComponent } from './components/authcomponent/register/register';
 import { CertificadoListComponent } from './components/certificadocomponent/certificado-list/certificado-list';
 import { IncentivoListComponent } from './components/incentivocomponent/incentivo-list/incentivo-list';
+import { LandingComponent } from './components/landingcomponent/landingcomponent';
 import { LayoutComponent } from './components/layoutcomponent/layoutcomponent';
 import { PerfilComponent } from './components/perfilcomponent/perfilcomponent';
 import { PublicacionDetail } from './components/publicacioncomponent/publicacion-detail/publicacion-detail';
@@ -24,6 +25,12 @@ import { roleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   {
+    path: '',
+    component: LandingComponent,
+    canActivate: [publicGuard],
+    pathMatch: 'full',
+  },
+  {
     path: 'login',
     component: LoginComponent,
     canActivate: [publicGuard],
@@ -38,11 +45,6 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      {
-        path: '',
-        redirectTo: 'resumen',
-        pathMatch: 'full',
-      },
       {
         path: 'resumen',
         component: ResumenComponent,
