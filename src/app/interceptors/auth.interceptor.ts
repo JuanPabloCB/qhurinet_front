@@ -23,13 +23,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
   return next(authRequest).pipe(
     catchError((error: unknown) => {
-      if (
-        error instanceof HttpErrorResponse &&
-        error.status === 401 &&
-        isBackendRequest &&
-        !isAuthRequest &&
-        authService.getRefreshToken()
-      ) {
+      if (!(error instanceof HttpErrorResponse) || !isBackendRequest || isAuthRequest) {
+        return throwError(() => error);
+      }
+
+      if (error.status === 403) {
+        return throwError(() => error);
+      }
+
+      if (error.status === 401 && authService.getRefreshToken()) {
         return authService.refresh().pipe(
           switchMap(() =>
             next(
