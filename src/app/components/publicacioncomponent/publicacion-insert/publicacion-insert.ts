@@ -76,7 +76,7 @@ export class PublicacionInsert implements OnInit {
 
   cargarMateriales(): void {
     this.cargandoMateriales = true;
-    this.materialService.listar().subscribe({
+    this.materialService.listarMisMateriales().subscribe({
       next: (materiales) => {
         this.materialesDisponibles = materiales;
         this.materialesArray.clear();
@@ -309,6 +309,7 @@ export class PublicacionInsert implements OnInit {
             categoria: material.categoria,
             descripcion: '',
             puntosPorKg: 0,
+            usuarioId: 0,
           }) as Material,
       );
   }

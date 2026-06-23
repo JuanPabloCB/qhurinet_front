@@ -63,7 +63,7 @@ export class PublicacionEdit implements OnInit {
     forkJoin({
       publicacion: this.publicacionService.buscarPorId(this.id),
       detalle: this.publicacionService.obtenerDetalle(this.id),
-      materiales: this.materialService.listar(),
+      materiales: this.materialService.listarMisMateriales(),
     }).subscribe({
       next: ({ publicacion, detalle, materiales }) => {
         const idUsuario = this.authService.getCurrentUserId();
@@ -248,6 +248,7 @@ export class PublicacionEdit implements OnInit {
         categoria: material.categoria,
         descripcion: '',
         puntosPorKg: 0,
+        usuarioId: 0,
       }));
   }
 

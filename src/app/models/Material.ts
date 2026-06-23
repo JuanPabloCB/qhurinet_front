@@ -4,6 +4,7 @@ export class Material {
   categoria: string = '';
   descripcion: string = '';
   puntosPorKg: number = 0;
+  usuarioId: number = 0;
 
   constructor() {}
 }

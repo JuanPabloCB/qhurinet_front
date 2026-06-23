@@ -158,7 +158,7 @@ export class Publicacionmaterialcomponent implements OnInit {
 
   private cargarMateriales(): void {
     this.cargandoMateriales = true;
-    this.materialService.listar().subscribe({
+    this.materialService.listarMisMateriales().subscribe({
       next: (materiales) => {
         this.materiales = materiales;
         this.categorias = [...new Set(materiales.map((m) => m.categoria).filter(Boolean))];

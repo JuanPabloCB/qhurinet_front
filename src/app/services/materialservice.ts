@@ -19,6 +19,13 @@ export class MaterialService {
     );
   }
 
+  listarMisMateriales(): Observable<Material[]> {
+    return this.http.get<Material[] | null>(`${this.apiUrl}/mis-materiales`).pipe(
+      map((materiales) => materiales ?? []),
+      catchError((error: HttpErrorResponse) => this.listaVaciaSiNoContent(error)),
+    );
+  }
+
   buscarPorId(id: number): Observable<Material> {
     return this.http.get<Material>(`${this.apiUrl}/${id}`);
   }
